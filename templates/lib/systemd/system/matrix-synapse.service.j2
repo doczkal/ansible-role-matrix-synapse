@@ -11,6 +11,7 @@ ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=3
 SyslogIdentifier=matrix-synapse
+#Environment="PYTHONPATH=/var/lib/matrix-synapse/"
 
 [Install]
 WantedBy=multi-user.target

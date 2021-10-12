@@ -75,6 +75,7 @@ synapse_email_templates_dest: "{{ synapse_installation_path }}/email_notif_templ
 #######################
 
 synapse_with_ldap_authentication: false
+synapse_with_keycloak_authentication: false
 
 synapse_ldap_uri: ldap.example.com:389
 synapse_ldap_start_tls: 'true'

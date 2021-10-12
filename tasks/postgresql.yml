@@ -3,11 +3,11 @@
 ## Based on https://github.com/matrix-org/synapse/blob/master/docs/postgres.rst
 
 - name: Install PostgreSQL and dependencies
-  apt:
+  dnf:
     name:
       - postgresql
-      - libpq-dev
-      - python-psycopg2
+      - libpq-devel
+      - python2-psycopg2
     state: present
 
 - name: Ensure PostgreSQL service is started

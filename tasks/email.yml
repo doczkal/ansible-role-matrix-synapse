@@ -2,7 +2,7 @@
 
 - block:
   - name: Ensure postfix is installed
-    apt:
+    ansible.builtin.package:
       name: postfix
       state: present
 

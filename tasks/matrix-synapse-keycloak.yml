@@ -1,0 +1,26 @@
+---
+
+- name: Install keycloak authentication provider module
+  pip:
+    name: matrix-synapse-keycloak
+    chdir: "{{ synapse_installation_path }}"
+    virtualenv: "{{ synapse_installation_path }}/env"
+    virtualenv_python: python3
+    state: "{{ synapse_pip_state }}"
+
+- name: Configure LDAP integration
+  template:
+    src: "{{ synapse_confd_templates_src }}/keycloak.yaml.j2"
+    dest: "{{ synapse_installation_path }}/conf.d/keycloak.yaml"
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart matrix-synapse
+  when: synapse_with_keycloak_authentication | bool
+
+- name: Disable LDAP integration
+  file:
+    path: "{{ synapse_installation_path }}/conf.d/keycloak.yaml"
+    state: absent
+  notify: restart matrix-synapse
+  when: not synapse_with_keycloak_authentication | bool

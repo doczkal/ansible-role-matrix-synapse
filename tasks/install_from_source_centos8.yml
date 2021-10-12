@@ -1,0 +1,105 @@
+---
+
+## Based on https://github.com/matrix-org/synapse/blob/master/INSTALL.md#installing-synapse
+
+- name: Install Synapse dependencies
+  dnf:
+    name:
+      - gcc
+      - gcc-c++
+      - kernel-devel
+      - make
+      - libffi-devel
+      - libjpeg-turbo-devel.x86_64
+      - openssl-devel.x86_64
+      - libxslt-devel.x86_64
+      - python36-devel.x86_64
+      - python3-pip
+      - python3-psycopg2
+      - python3-setuptools
+      - python3-virtualenv
+      - sqlite.x86_64
+    state: present
+    update_cache: yes
+
+- name: Upgrade pip and setuptools
+  pip:
+    name:
+      - pip
+      - setuptools
+      - virtualenv
+      - ndg-httpsclient
+      - twisted
+    state: latest
+
+- name: Create dedicated user for Synapse
+  user:
+    name: matrix-synapse
+    create_home: yes
+    home: "{{ synapse_installation_path }}"
+    shell: /bin/false
+    state: present
+
+- name: Install or update Synapse using pip
+  pip:
+    name: "{{ matrix_synapse_pip_pkg }}"
+    chdir: "{{ synapse_installation_path }}"
+    virtualenv: "{{ synapse_installation_path }}/env"
+    virtualenv_python: python3
+    state: "{{ synapse_pip_state }}"
+  notify: restart matrix-synapse
+
+- name: Check if homeserver config file already exists
+  stat:
+    path: "{{ synapse_installation_path }}/homeserver.yaml"
+  register: config_file
+
+- name: Generate a configuration file
+  shell:
+    source {{ synapse_installation_path }}/env/bin/activate &&
+    python -m synapse.app.homeserver \
+      --server-name {{ synapse_server_name }} \
+      --config-path homeserver.yaml \
+      --generate-config \
+      --report-stats={{ synapse_report_stats }}
+  args:
+    chdir: "{{ synapse_installation_path }}"
+    executable: /bin/bash
+  when: not config_file.stat.exists
+
+- name: Create custom config folder
+  file:
+    path: "{{ synapse_installation_path }}/conf.d"
+    state: directory
+    mode: 0755
+
+- name: Create a system service to run Synapse
+  template:
+    src: lib/systemd/system/matrix-synapse.service.j2
+    dest: /lib/systemd/system/matrix-synapse.service
+    mode: 0644
+    owner: root
+    group: root
+  register: service_create
+
+- name: Reload systemctl daemon
+  systemd:
+    daemon_reload: yes
+  when: service_create.changed
+
+- name: Enable matrix-synapse.service
+  systemd:
+    name: matrix-synapse.service
+    enabled: yes
+
+- name: Set custom configurations
+  template:
+    src: "{{ synapse_confd_templates_src }}/{{ item }}.yaml.j2"
+    dest: "{{ synapse_installation_path }}/conf.d/{{ item }}.yaml"
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart matrix-synapse
+  with_items:
+    - custom
+    - registration

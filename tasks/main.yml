@@ -1,7 +1,7 @@
 ---
 # tasks file for ansible-role-matrix-synapse
 
-- include_tasks: install_from_source.yml
+- include_tasks: install_from_source_centos8.yml
 
 - include_tasks: email.yml
 
@@ -16,3 +16,5 @@
 
 - include_tasks: element_web.yml
   when: synapse_installation_with_element | bool
+
+- include_tasks: matrix-synapse-keycloak.yml

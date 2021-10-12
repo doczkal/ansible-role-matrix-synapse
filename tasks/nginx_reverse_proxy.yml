@@ -1,7 +1,7 @@
 ---
 
 - name: Install nginx
-  apt:
+  ansible.builtin.package:
     name: nginx
     state: present
 
