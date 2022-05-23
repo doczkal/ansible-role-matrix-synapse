@@ -4,10 +4,10 @@ password_providers:
   - module: "keycloak_auth_provider.KeycloakAuthProvider"
     config:
       enabled: true
-      url: "https://login.doczkal.cloud:8443/auth/"
+      url: "https://login.{{ synapse_server_name }}:8443/auth/"
       client_id: "synapse-jwt"
-      realm_name: "doczkal.cloud"
-      secret_key: "b88b7d00-c511-441b-a7f5-2796c7841492"
+      realm_name: "{{ synapse_server_name }}"
+      secret_key: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
       public_key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAg3ra8qxSoyODQzNB8ETQCJgkX6SDSIcx026oodM+4FaMhCexXpcAHSdb++zBscam04n2YmTYgiVN7oMugRiYAVakGakm8bGRyy3nG+BvMnyB52NdwB6UsGhcRSZPnVp39Z8CTZyebzjEy/oBnw0R2wCU1Q0lq+31sKbH8x/QSZtnJBXiA7l+isttZAyzQ9G7qvrwgPK1ZqOk9BsZsEP7W7nr7FxcWGe+CeZx3FVY2uQLomgkcgoGbE5dl9t1/UKhN0yUfGNO5wWzXqp0VdWJXyjYR2yQlNVmVI8HhWRyxAdpIuXAdPLaS8u/KNlu/CQBDZHG84vijISjNF6ue6GRZQIDAQAB"
       algorithm: "RS256"
       profile_attrs:
