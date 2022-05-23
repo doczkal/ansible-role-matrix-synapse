@@ -10,13 +10,15 @@ Also based on the recommendation, a Nginx reverse proxy and valid Let's Encrypt 
 
 As a database server, it is possible to use PostgreSQL (recommended for production environments) and SQLite (recommended for small or testing environments). The role default option is PostgreSQL, contemplating its installation and configuration.
 
-A simple Postfix installation makes it possible to send notifications, account recovery, etc. via email. With easily customizable templates through variables.
+A simple Postfix local installation or a external SMTP server makes it possible to send notifications, account recovery, etc. via email. With easily customizable templates through variables.
 
 Optionally this role allows provisioning a CoTURN installation to [enable VoIP relaying on your matrix homeserver with TURN](https://github.com/matrix-org/synapse/blob/master/docs/turn-howto.md).
 
 Through authentication providers it's possible to integrate decentralized logins. This role implements integration with LDAP optionally.
 
 Finally, this role also allows you to serve the [Element](https://app.element.io/) (formerly Riot) web application together with Synapse. This feature is disabled by default (`synapse_installation_with_element: false`) due to the [project security recommendation](https://github.com/vector-im/element-web/#important-security-note). But serve Element is very useful. Fully recommended if you have the posibility to destiny different domain names for Synapse and Element (`synapse_server_name` != `element_server_name`). Otherwise you can install both in the same domain name at your own risk (`synapse_server_name` == `element_server_name`).
+
+Since version 3.0.0, this role is compatible with [Element web app version 1.7.15](https://github.com/vector-im/element-web/releases/tag/v1.7.15) and above, but is not compatible with Riot/Element versions 1.7.14 and olders.
 
 Deployment diagram
 ------------
@@ -119,6 +121,12 @@ synapse_report_stats: 'no'
 # The largest allowed upload size in bytes
 synapse_max_upload_size: 10M
 
+# Endpoints for administering your Synapse instance are placed under /_synapse/admin. These require
+# authentication through an access token of an admin user. However as access to these endpoints grants
+# the caller a lot of power, we do not recommend exposing them to the public internet without good reason.
+# See https://matrix-org.github.io/synapse/latest/reverse_proxy.html
+synapse_enable_admin_endpoints: false
+
 # Local sources to templates and configuration files, useful
 # for overwriting if you want to use your own templates in conf.d
 synapse_confd_templates_src: var/lib/matrix-synapse/conf.d
@@ -134,8 +142,14 @@ synapse_psql_password: secret-password
 ### Email
 # If email is not configured, password reset, registration and notifications via email will be disabled.
 synapse_email_enable: true
+
+synapse_smtp_host: localhost
+synapse_smtp_port: 25
+# synapse_smtp_user: synapse
+# synapse_smtp_pass: secret
+
 synapse_email_hostname: "{{ synapse_server_fqdn }}"
-synapse_email_notif_from: "YourFriendlyhomeserver" # without spaces
+synapse_email_notif_from: "MyOrganization Matrix Homeserver <matrix@myorganization.com>"
 
 synapse_email_with_custom_templates: false
 # If true, remember use a customized version of the template conf.d/email.yaml.j2 to reference them
@@ -177,7 +191,7 @@ element_installation_path: /var/www/element
 # eg: element.my-organization.org
 element_server_name: "{{ synapse_server_name }}"
 # Look https://github.com/vector-im/element-web/releases to use the latest version
-element_version: '1.7.3'
+element_version: '1.7.15'
 element_jitsi_preferred_domain: jitsi.riot.im
 # Name to display for the server
 element_display_name: 'My Org Chat'
