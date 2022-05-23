@@ -6,8 +6,8 @@
   dnf:
     name:
       - postgresql
-      - libpq-devel
-      - python2-psycopg2
+      - "{{ 'libpq-dev' if(ansible_distribution_major_version is version('10', '<=') and ansible_os_family('Debian', '==') else 'libpq-devel' }}"
+      - "{{ 'python-psycopg2' if(ansible_distribution_major_version is version('10', '<=') and ansible_os_family('Debian', '==') else 'python3-psycopg2' }}"
     state: present
 
 - name: Ensure PostgreSQL service is started
